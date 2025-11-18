@@ -25,3 +25,11 @@ This repository contains my files and work for Activity #14.
 2. Render the QMD file to create the PDF.
 3. Upload both QMD and PDF to this repo.
 4. Review files to make sure everything knits correctly and looks complete.
+
+## GitHub Features Used
+
+- Public repository
+- Branching (main + activity14-edit)
+- Issues for tracking tasks
+- Commits with meaningful messages
+- Pull requests for merging changes
