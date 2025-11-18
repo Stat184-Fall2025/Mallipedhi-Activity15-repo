@@ -4,8 +4,8 @@ Activity #15 - Repository for STAT 184 Activity #14, including QMD, PDF, issues,
 This repository contains my files and work for Activity #14.
 
 ## Contents
-- `Activity14.qmd` — Quarto document used for the activity  
-- `Activity14.pdf` — Rendered PDF submitted to Canvas  
+- `activityyy14.qmd` — Quarto document used for the activity  
+- `stat184activity14.pdf` — Rendered PDF submitted to Canvas  
 - Plan for creating/maintaining the repo  
 - Notes about Git branches, issues, and pull requests
 
