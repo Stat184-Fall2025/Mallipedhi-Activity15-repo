@@ -1,0 +1,302 @@
+---
+title: "Activity 14: QMD File"
+subtitle: "STAT 184"
+author: "Harshini Mallipedhi"
+date: "11/10/2025"
+date-format: full
+date-modified: now
+format:
+  html:
+    embed-resources: true
+    number-sections: false
+    toc: true
+    toc-depth: 4
+    toc-location: right
+    fig-align: center
+    cap-location: top
+    link-external-newwindow: true
+  pdf:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  eval: true
+  warning: false
+engine: knitr
+---
+
+## Armed Forces Data Wrangling Redux (Activities #08 and #10)
+
+```{r}
+#| echo: false
+#| results: 'asis'
+#| warning: false
+#| message: false
+
+
+
+#load all packages
+library(dplyr)
+library(tidyr)
+library(readr)
+library(janitor)
+library(knitr)
+
+#read in data
+ArmedForcesRaw <- read.table(
+  file   = "/Users/harshinimallipedhi/Desktop/US_Armed_Forces_(6_2025) - Sheet1.csv",
+  header = FALSE, sep = ",", skip = 1, stringsAsFactors = FALSE
+)
+
+ArmedForcesRaw <- ArmedForcesRaw[
+  -c(1, 2, 12, 18, 29, 30, 31),
+  -c(4, 7, 10, 13, 16, 17, 18, 19)
+]
+
+ArmedForcesRaw <- ArmedForcesRaw %>%
+  rename(
+    Pay_Grade = V1, Army_Male = V2, Army_Female = V3,
+    Navy_Male = V5, Navy_Female = V6,
+    MarineCorps_Male = V8, MarineCorps_Female = V9,
+    AirForce_Male = V11, AirForce_Female = V12,
+    SpaceForce_Male = V14, SpaceForce_Female = V15
+  )
+
+AF_tidy_individualCase <- ArmedForcesRaw %>%
+  pivot_longer(cols = -Pay_Grade,
+               names_to = c("Branch","Sex"), names_sep = "_",
+               values_to = "Count") %>%
+  mutate(Count = parse_number(Count)) %>%
+  filter(!is.na(Count) & Count > 0) %>%
+  uncount(Count)
+
+#narrower subset of soldiers is male soldiers
+male_table <- AF_tidy_individualCase %>%
+  filter(Sex == "Male") %>%
+  tabyl(Pay_Grade, Branch) %>%
+  adorn_totals(c("row","col")) %>%
+  adorn_percentages("all") %>%
+  adorn_pct_formatting(digits = 1) %>%
+  adorn_ns(position = "front")
+
+kable(male_table, caption = "Distribution of Males by Pay Grade and Branch")
+```
+
+## Popularity of Baby Names (Activity #13)
+
+```{r}
+#| echo: false
+#load the packages
+library(tidyverse)
+library(dcData)
+library(scales)
+
+#load the dataset
+data("BabyNames")
+
+#select the names
+names_selected <- c("Josephine", "Bessie", "Cora", "Lillian")
+
+#filter the dataset
+selected_names <- BabyNames %>%
+  filter(name %in% names_selected) %>%      
+  select(name, sex, count, year)            
+
+#summarize data
+plot_df <- selected_names %>%
+  group_by(name, sex, year) %>%
+  summarise(count = sum(count), .groups = "drop")
+
+#line graph
+#x-axis: Year
+#y-axis: Total number of babies
+#color: Name
+#linetype: Sex
+ggplot(plot_df, aes(x = year, y = count, color = name, linetype = sex, group = interaction(name, sex))) +
+  geom_line(linewidth = 1.2, na.rm = TRUE) +
+  scale_y_continuous(labels = comma) +
+  labs(
+    title = "Popularity of Selected Baby Names Over Time",
+    subtitle = "Trends in name usage by year and sex in the United States (1880-2022)",
+    x = "Year",
+    y = "Total Number of Babies",
+    color = "Name",
+    linetype = "Sex"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+## Plotting a Mathematical Function (Activity #04)
+
+```{r}
+#| echo: false
+#load packages
+library(ggplot2)
+
+#creating the volume function
+volume_box <- function(x) { 
+  volume <- x * (11 - 2 * x) * (8.5 - 2 * x)
+  return(volume)
+}
+
+#making the plot
+
+ggplot(data.frame(x = c(0, 4)), aes(x = x)) +
+  stat_function(fun = volume_box, color = "blue", size = 1.2) +
+  labs(
+    title = "Volume of the Box vs. Size of Cutout Square",
+    x = "Side length of cutout square (inches)",
+    y = "Volume of box (cubic inches)"
+  ) +
+  theme_minimal()
+```
+
+## What You Feel You've Learned So Far
+
+I have learned how to use R for data analysis and visualization. I can now read data files, clean them, organize them, and use different functions to explore patterns in the data. I have learned how to use different packages (like dplyr, tidyr, and ggplot2) to make my work easier and more efficient. Writing code in R has helped me understand how data can be transformed step by step. I realized how important data wrangling is because it makes sure that the data is accurate, consistent, and ready for analysis. Without proper wrangling, it would be difficult to draw reliable conclusions. I also learned how to interpret statistics and understand what the numbers in my analysis really mean. I have come to appreciate how much clear and thoughtful visualizations can impact how results are understood. The example of the water pump map from England showed me how data visualization can reveal problems that might not be seen otherwise. And finally, I learned the importance of having good code comments. In the beginning, R seemed confusing, but now I feel more confident using it. I understand how coding and visualization work together to solve real problems by making patterns clear and easy to understand.
+
+## Code Appendix
+
+### Armed Forces Data Wrangling (Activities #08 and #10)
+
+```{r}
+#| echo: true
+#| eval: false
+
+#load all packages
+library(dplyr)
+library(tidyr)
+library(readr)
+library(janitor)
+library(knitr)
+
+#read in data
+ArmedForcesRaw <- read.table(
+  file   = "/Users/harshinimallipedhi/Desktop/US_Armed_Forces_(6_2025) - Sheet1.csv",
+  header = FALSE, sep = ",", skip = 1, stringsAsFactors = FALSE
+)
+
+ArmedForcesRaw <- ArmedForcesRaw[
+  -c(1, 2, 12, 18, 29, 30, 31),
+  -c(4, 7, 10, 13, 16, 17, 18, 19)
+]
+
+ArmedForcesRaw <- ArmedForcesRaw %>%
+  rename(
+    Pay_Grade = V1, Army_Male = V2, Army_Female = V3,
+    Navy_Male = V5, Navy_Female = V6,
+    MarineCorps_Male = V8, MarineCorps_Female = V9,
+    AirForce_Male = V11, AirForce_Female = V12,
+    SpaceForce_Male = V14, SpaceForce_Female = V15
+  )
+
+AF_tidy_individualCase <- ArmedForcesRaw %>%
+  pivot_longer(cols = -Pay_Grade,
+               names_to = c("Branch","Sex"), names_sep = "_",
+               values_to = "Count") %>%
+  mutate(Count = parse_number(Count)) %>%
+  filter(!is.na(Count) & Count > 0) %>%
+  uncount(Count)
+
+#narrower subset of soldiers is male soldiers
+male_table <- AF_tidy_individualCase %>%
+  filter(Sex == "Male") %>%
+  tabyl(Pay_Grade, Branch) %>%
+  adorn_totals(c("row","col")) %>%
+  adorn_percentages("all") %>%
+  adorn_pct_formatting(digits = 1) %>%
+  adorn_ns(position = "front")
+
+kable(male_table, caption = "Distribution of Males by Pay Grade and Branch")
+```
+
+### Popularity of Baby Names (Activity #13)
+
+```{r}
+
+#| echo: true
+#| eval: false
+
+#load the packages
+library(tidyverse)
+library(dcData)
+library(scales)
+
+#load the dataset
+data("BabyNames")
+
+#select the names
+names_selected <- c("Josephine", "Bessie", "Cora", "Lillian")
+
+#filter the dataset
+selected_names <- BabyNames %>%
+filter(name %in% names_selected) %>%
+select(name, sex, count, year)
+
+#summarize data
+plot_df <- selected_names %>%
+group_by(name, sex, year) %>%
+summarise(count = sum(count), .groups = "drop")
+
+#line graph
+ggplot(plot_df, aes(x = year, y = count, color = name, linetype = sex, group = interaction(name, sex))) +
+geom_line(linewidth = 1.2, na.rm = TRUE) +
+scale_y_continuous(labels = comma) +
+labs(
+title = "Popularity of Selected Baby Names Over Time",
+subtitle = "Trends in name usage by year and sex in the United States (1880-2022)",
+x = "Year",
+y = "Total Number of Babies",
+color = "Name",
+linetype = "Sex"
+) +
+theme_minimal(base_size = 13) +
+theme(
+plot.title = element_text(face = "bold"),
+panel.grid.minor = element_blank()
+)
+```
+
+### Plotting a Mathematical Function (Activity #04)
+
+```{r}
+#load packages
+library(ggplot2)
+
+#creating the volume function
+volume_box <- function(x) { 
+  volume <- x * (11 - 2 * x) * (8.5 - 2 * x)
+  return(volume)
+}
+
+#making the plot
+
+ggplot(data.frame(x = c(0, 4)), aes(x = x)) +
+  stat_function(fun = volume_box, color = "blue", size = 1.2) +
+  labs(
+    title = "Volume of the Box vs. Size of Cutout Square",
+    x = "Side length of cutout square (inches)",
+    y = "Volume of box (cubic inches)"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+```         
+```
+
+------------------------------------------------------------------------
+
+```         
+```
+
+```         
+```
+
+```         
+```
