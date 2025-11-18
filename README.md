@@ -11,7 +11,7 @@ This repository contains my files and work for Activity #14.
 
 ## Plan: Creating & Maintaining the Repo
 
-1. Create a public GitHub repository named `stat184-activity14` (or similar).
+1. Create a public GitHub repository named `Mallipedhi-Activity15-repo`.
 2. Add a README file describing the purpose and files in the repo.
 3. Create a new branch to work on changes instead of editing `main` directly.
 4. Use issues to track tasks (ex: "Upload QMD/PDF", "Write README and plan").
